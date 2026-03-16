@@ -9,39 +9,41 @@ function initTheme(){
 function toggleTheme(){
   const currentTheme = document.documentElement.getAttribute("data-theme");
   const newTheme = currentTheme === "dark" ? 'light' : 'dark';
-
   document.documentElement.setAttribute("data-theme", newTheme);
   localStorage.setItem("theme", newTheme);
   updateThemeIcon(newTheme);
-
-  // Show toast notification for theme change
   showToast(`Switched to ${newTheme} mode`, 'info');
 }
 
 function updateThemeIcon(theme){
   const themeIcon = document.querySelector(".theme-icon");
-  themeIcon.textContent = theme === "dark" ? '☀️' : '🌙';
+  themeIcon.innerHTML = theme === "dark" ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
 }
 
 // ===== Toast Notification System =====
 
 function showToast(message, type = 'info', duration = 3000){
   const container = document.getElementById("toast-container");
+  if(!container) return;
+
+  const iconMap = {
+    success: '<i class="bi bi-check-circle-fill" style="color:var(--success)"></i>',
+    error: '<i class="bi bi-exclamation-circle-fill" style="color:var(--danger)"></i>',
+    info: '<i class="bi bi-info-circle-fill" style="color:var(--accent)"></i>',
+  };
 
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  toast.textContent = message;
+  toast.innerHTML = `${iconMap[type] || iconMap.info} ${message}`;
 
   container.appendChild(toast);
 
   // Trigger animation
-
-  setTimeout(()=>{
+  requestAnimationFrame(()=>{
     toast.classList.add('show');
-  }, 10);
+  });
 
   // Auto remove
-
   setTimeout(()=>{
     toast.classList.remove('show');
     setTimeout(()=>{
@@ -81,23 +83,6 @@ function load(){
     console.warn("Failed to parse todos:", e);
     state.todos = [];
   }
-}
-
-// ===== Error Display =====
-
-function showError(message){
-  const input = $("newTitle");
-  const originalPlaceholder = input.placeholder;
-
-  input.style.borderColor = "var(--danger)";
-  input.placeholder = message;
-  input.classList.add("error");
-
-  setTimeout(()=>{
-    input.style.borderColor = '';
-    input.placeholder = originalPlaceholder;
-    input.classList.remove("error");
-  }, 3000);
 }
 
 // ===== CRUD =====
@@ -154,7 +139,13 @@ function clearCompleted(){
 
 function formatDate(ts){
   const d = new Date(ts);
-  return d.toLocaleString();
+  const options = { 
+    month: 'short', 
+    day: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  };
+  return d.toLocaleDateString(undefined, options);
 }
 
 function filteredTodos(){
@@ -179,7 +170,6 @@ function render(){
     li.dataset.id = t.id;
 
     // left: checkbox
-
     const check = document.createElement("button");
     check.className = "check" + (t.done ? " done" : "");
     check.title = t.done ? "Mark as active" : "Mark as done";
@@ -188,7 +178,6 @@ function render(){
     li.appendChild(check);
 
     // middle: content
-
     const mid = document.createElement("div");
     mid.className = "item-content";
     const title = document.createElement("div");
@@ -202,7 +191,6 @@ function render(){
     li.appendChild(mid);
 
     // right: actions
-
     const actions = document.createElement("div");
     actions.className = "actions";
 
@@ -213,13 +201,13 @@ function render(){
 
     const edit = document.createElement("button");
     edit.className = "iconbtn";
-    edit.textContent = "Edit";
+    edit.innerHTML = '<i class="bi bi-pencil"></i><span class="d-none d-sm-inline"> Edit</span>';
     edit.addEventListener("click", () => openEdit(t.id));
     actions.appendChild(edit);
 
     const del = document.createElement("button");
     del.className = "iconbtn";
-    del.textContent = "Delete";
+    del.innerHTML = '<i class="bi bi-trash3"></i><span class="d-none d-sm-inline"> Delete</span>';
     del.addEventListener("click", () => {
       const sure = confirm("Delete this task?");
       if(sure) deleteTodo(t.id);
@@ -231,10 +219,10 @@ function render(){
   });
 
   // footer count
-
   const all = state.todos.length;
   const active = state.todos.filter(t => !t.done).length;
-  $("#count").textContent = `${all} items • ${active} active`;
+  const completed = all - active;
+  $("#count").textContent = `${all} items • ${active} active • ${completed} done`;
 }
 
 // ===== Edit dialog =====
@@ -268,6 +256,13 @@ $("#editSave").addEventListener("click", () => {
   dlg.close();
 });
 
+// Close dialog on backdrop click
+dlg.addEventListener("click", (e) => {
+  if (e.target === dlg) {
+    dlg.close();
+  }
+});
+
 // ===== Events =====
 
 $("#newTitle").addEventListener("keydown", e => {
@@ -285,32 +280,22 @@ $("#search").addEventListener("input", e => {
 });
 
 // Enhanced filter button handling with better visual feedback
-
 $$(".chip").forEach(btn => {
   btn.addEventListener("click", () => {
-
-    // Remove active class from all chips
-
     $$(".chip").forEach(b => b.classList.remove("active"));
-
-    // Add active class to clicked chip
-
     btn.classList.add("active");
     const oldFilter = state.filter;
     state.filter = btn.dataset.filter;
 
-    // Show toast notification for filter change
-
     const filterNames = {
-      'all': 'All tasks',
-      'active': 'Active tasks',
-      'completed': 'Completed tasks'
+      all: 'All tasks',
+      active: 'Active tasks',
+      completed: 'Completed tasks'
     };
 
     if(oldFilter !== state.filter){
       showToast(`Showing ${filterNames[state.filter]}`, 'info');
     }
-    
     render();
   });
 });
@@ -335,28 +320,30 @@ $("#wipe").addEventListener("click", () => {
 });
 
 // Theme toggle
-
 $("#themeToggle").addEventListener("click", toggleTheme);
 
 // Import/Export (simple JSON)
-
 $("#export").addEventListener("click", () => {
   if(state.todos.length === 0){
     showToast("No tasks to export", 'info');
     return;
   }
-
-  const blob = new Blob([JSON.stringify(state.todos, null, 2)], {type:"application/json"});
+  const blob = new Blob([JSON.stringify(state.todos, null, 2)], {
+    type:"application/json"
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "todos.json"; a.click();
+  a.href = url; 
+  a.download = "taskmate-todos.json"; 
+  a.click();
   URL.revokeObjectURL(url);
   showToast("Tasks exported successfully!", 'success');
 });
 
 $("#import").addEventListener("click", async () => {
   const input = document.createElement("input");
-  input.type = "file"; input.accept = "application/json";
+  input.type = "file"; 
+  input.accept = "application/json";
   input.addEventListener("change", async () => {
     const file = input.files[0];
     if(!file) return;
@@ -364,9 +351,6 @@ $("#import").addEventListener("click", async () => {
       const text = await file.text();
       const arr = JSON.parse(text);
       if(!Array.isArray(arr)) throw new Error("Invalid file");
-
-      // naive merge: imported items go to top
-
       const importCount = arr.length;
       state.todos = [...arr, ...state.todos];
       save();
@@ -386,7 +370,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
   render();
 
   // Welcome message
-
   setTimeout(()=>{
     showToast("Welcome to Task mate!", 'info')
   }, 500);
