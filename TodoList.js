@@ -235,8 +235,11 @@ function render(){
     del.className = "iconbtn";
     del.innerHTML = '<i class="bi bi-trash3"></i><span class="d-none d-sm-inline"> Delete</span>';
     del.addEventListener("click", () => {
-      const sure = confirm("Delete this task?");
-      if(sure) deleteTodo(t.id);
+      openConfirm(
+        '<i class="bi bi-trash3 me-2"></i> Delete Task',
+        `<i class="bi bi-exclamation-triangle me-2"></i> Are you sure you want to delete this task?<br><strong>${t.title}</strong>`,
+        () => deleteTodo(t.id)
+      );
     });
     actions.appendChild(del);
 

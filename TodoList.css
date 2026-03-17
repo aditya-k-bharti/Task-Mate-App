@@ -414,6 +414,34 @@ html[data-theme="dark"] .item:hover{
 }
 
 @media(max-width:768px){
+  .controls input{
+    width: 100%;
+  }
+
+  #addBtn{
+    width: 100%;
+    display: block;
+  }
+
+  .controls{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .controls .row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip{
+    flex: 1;
+    justify-content: center;
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
   .item{
     grid-template-columns: auto 1fr;
     gap: 12px;
