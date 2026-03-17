@@ -91,6 +91,8 @@ header{
   display: grid;
   gap: 12px;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 html[data-theme="dark"] header{
@@ -99,8 +101,12 @@ html[data-theme="dark"] header{
 
 .brand{
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
+}
+
+brand-text{
+  flex: 1;
 }
 
 .logo{
@@ -125,9 +131,7 @@ img{
 }
 
 .theme-toggle{
-  position: absolute;
-  top: 34px;
-  right: 24px;
+  margin-left: auto;
 }
 
 h1{
@@ -425,6 +429,18 @@ html[data-theme="dark"] .item:hover{
   .actions.pill{
     order: -1;
   }
+
+  .theme-toggle{
+    margin-left: auto;
+  }
+
+  .brand{
+    align-items: flex-start;
+  }
+
+  .muted{
+    font-size: 0.85rem;
+  }
 }
 
 .iconbtn{
@@ -494,14 +510,14 @@ html[data-theme="dark"] .footer{
 
   footer .row{
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
     overflow: visible;
   }
 
   footer .btn{
-    padding: 10px 8px;
-    font-size: 0.8rem;
+    padding: 8px;
+    font-size: 0.75rem;
     text-align: center;
     white-space: nowrap;
   }
@@ -538,6 +554,18 @@ dialog{
   color: var(--text);
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
+  animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn{
+  from{
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to{
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 html[data-theme="dark"] dialog{
@@ -554,16 +582,16 @@ html[data-theme="dark"] dialog::backdrop{
   background: rgba(2, 6, 23, 0.65);
 }
 
-dlg-body{
+.dlg-body{
   padding: 18px 18px 18px;
 }
 
-dlg-row{
+.dlg-row{
   display: grid;
   gap: 10px;
 }
 
-dlg-actions{
+.dlg-actions{
   display: flex;
   gap: 10px;
   justify-content: flex-end;

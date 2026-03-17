@@ -136,6 +136,32 @@ function clearCompleted(){
 }
 
 // ===== UI Helpers =====
+function openConfirm(title, text, onConfirm){
+  const dlg = document.getElementById("confirmDialog");
+  document.getElementById("confirmTitle").innerHTML = title;
+  document.getElementById("confirmText").innerHTML = text;
+
+  dlg.showModal();
+
+  const ok = document.getElementById("confirmOk");
+  const cancel = document.getElementById("confirmCancel");
+
+  const clean = () => {
+    ok.onclick = null;
+    cancel.onclick = null;
+  };
+
+  ok.onclick = () =>{
+    onConfirm();
+    dlg.close();
+    clean();
+  };
+
+  cancel.onclick = () =>{
+    dlg.close();
+    clean();
+  }
+}
 
 function formatDate(ts){
   const d = new Date(ts);
@@ -306,17 +332,29 @@ $("#clearCompleted").addEventListener("click", () => {
     showToast("No completed tasks to clear", 'info');
     return;
   }
-  if(confirm("Clear all completed tasks?")){
-    clearCompleted();
-  }
+  openConfirm(
+    '<i class="bi bi-trash3 me-2"></i> Clear Completed',
+    '<i class="bi bi-exclamation-triangle me-2"></i> Delete all completed tasks?',
+    clearCompleted
+  );
 });
 
 $("#wipe").addEventListener("click", () => {
-  if(!confirm("Wipe ALL tasks? This cannot be undone.")) return;
-  const taskCount = state.todos.length;
-  state.todos = [];
-  save();
-  showToast(`${taskCount} tasks wiped`, 'info');
+  if(state.todos.length === 0){
+    showToast("No tasks to wipe", 'info');
+    return;
+  }
+
+  openConfirm(
+    '<i class="bi bi-x-octagon me-2"></i> Wipe All Tasks',
+    '<i class="bi bi-exclamation-diamond me-2"></i> This will delete All tasks permanently!',
+    () =>{
+      const count = state.todos.length;
+      state.todos = [];
+      save();
+      showToast(`All ${count} tasks wiped`, 'info');
+    }
+  );
 });
 
 // Theme toggle

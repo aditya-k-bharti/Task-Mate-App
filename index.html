@@ -14,21 +14,21 @@
     <header>
       <div class="brand">
         <div class="logo" aria-hidden="true">
-          <img src="./Todo.png" alt="" id="">
+          <img src="./Todo.png" alt="">
         </div>
-        <div>
+        <div class="brand-text">
           <h1>Task Mate</h1>
           <div class="muted">Stay organized and get things done. <br>
             Fast. Pretty. Persistent(<span class="kbd">localStorage</span>)
           </div>
         </div>
+        <div class="theme-toggle">
+          <button id="themeToggle" class="btn secondary" title="Toggle theme">
+            <span class="theme-icon"><i class="bi bi-moon-fill"></i></span>
+          </button>
+        </div>
       </div>
 
-      <div class="theme-toggle">
-        <button id="themeToggle" class="btn secondary" title="Toggle theme">
-          <span class="theme-icon"><i class="bi bi-moon-fill"></i></span>
-        </button>
-      </div>
 
       <div class="controls">
         <input type="text" id="newTitle" placeholder="Write a task (press Enter/Button)..." autocomplete="off"/>
@@ -69,6 +69,17 @@
     <div class="dlg-actions">
       <button id="editCancel" class="btn secondary">Cancel</button>
       <button id="editSave" class="btn">Save</button>
+    </div>
+  </dialog>
+
+  <dialog id="confirmDialog">
+    <div class="dlg-body">
+      <h5 id="confirmTitle">Confirm</h5>
+      <p id="confirmText">Are you sure?</p>
+    </div>
+    <div class="dlg-actions">
+      <button id="confirmCancel" class="btn secondary"><i class="bi bi-x-circle"></i> Cancel</button>
+      <button id="confirmOk" class="btn danger"><i class="bi bi-check2-circle"></i> Yes</button>
     </div>
   </dialog>
 
